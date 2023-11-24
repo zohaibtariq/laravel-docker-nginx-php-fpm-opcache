@@ -1,3 +1,5 @@
+# Dockerfile
+
 # Used for prod build.
 FROM php:8.1-fpm as php
 
@@ -13,6 +15,18 @@ RUN apt-get update && apt-get install -y unzip libpq-dev libcurl4-gnutls-dev ngi
 # Install PHP extensions.
 RUN docker-php-ext-install mysqli pdo pdo_mysql bcmath curl opcache mbstring
 
+# Install PHP MongoDB extension
+RUN pecl install mongodb && docker-php-ext-enable mongodb
+
+# Install PHP Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
+# mongodb redis php-redis git nano
+#RUN docker-php-ext-enable mongodb redis
+
+COPY ./docker/php/conf.d/mongodb.ini /usr/local/etc/php/conf.d/
+COPY ./docker/php/conf.d/redis.ini /usr/local/etc/php/conf.d/
+
 # Copy composer executable.
 COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer
 
@@ -21,6 +35,8 @@ COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
 COPY ./docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
+RUN service php8.1-fpm restart
+
 # Set working directory to /var/www.
 WORKDIR /var/www
 
@@ -28,23 +44,13 @@ WORKDIR /var/www
 COPY --chown=www-data:www-data . .
 
 # Create laravel caching folders.
-RUN mkdir -p /var/www/storage/framework
-RUN mkdir -p /var/www/storage/framework/cache
-RUN mkdir -p /var/www/storage/framework/testing
-RUN mkdir -p /var/www/storage/framework/sessions
-RUN mkdir -p /var/www/storage/framework/views
+RUN mkdir -p /var/www/storage/framework /var/www/storage/framework/{cache,testing,sessions,views}
 
 # Fix files ownership.
-RUN chown -R www-data /var/www/storage
-RUN chown -R www-data /var/www/storage/framework
-RUN chown -R www-data /var/www/storage/framework/sessions
+RUN chown -R www-data:www-data /var/www/storage
 
 # Set correct permission.
-RUN chmod -R 755 /var/www/storage
-RUN chmod -R 755 /var/www/storage/logs
-RUN chmod -R 755 /var/www/storage/framework
-RUN chmod -R 755 /var/www/storage/framework/sessions
-RUN chmod -R 755 /var/www/bootstrap
+RUN chmod -R 755 /var/www/storage /var/www/bootstrap
 
 # Adjust user permission & group
 RUN usermod --uid 1000 www-data
