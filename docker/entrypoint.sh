@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Start PHP-FPM
+#php-fpm
+
 if [ ! -f "vendor/autoload.php" ]; then
     composer install --no-progress --no-interaction
 fi

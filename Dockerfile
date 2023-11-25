@@ -16,16 +16,20 @@ RUN apt-get update && apt-get install -y unzip libpq-dev libcurl4-gnutls-dev ngi
 RUN docker-php-ext-install mysqli pdo pdo_mysql bcmath curl opcache mbstring
 
 # Install PHP MongoDB extension
-RUN pecl install mongodb && docker-php-ext-enable mongodb
+RUN pecl install mongodb
+#RUN docker-php-ext-install mongodb
+RUN docker-php-ext-enable mongodb
 
 # Install PHP Redis extension
-RUN pecl install redis && docker-php-ext-enable redis
+RUN pecl install redis
+#RUN docker-php-ext-install redis
+RUN docker-php-ext-enable redis
 
 # mongodb redis php-redis git nano
 #RUN docker-php-ext-enable mongodb redis
 
-COPY ./docker/php/conf.d/mongodb.ini /usr/local/etc/php/conf.d/
-COPY ./docker/php/conf.d/redis.ini /usr/local/etc/php/conf.d/
+COPY ./docker/php/conf.d/mongodb.ini /usr/local/etc/php/conf.d/mongodb.ini
+COPY ./docker/php/conf.d/redis.ini /usr/local/etc/php/conf.d/redis.ini
 
 # Copy composer executable.
 COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer
@@ -35,7 +39,7 @@ COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
 COPY ./docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
-RUN service php8.1-fpm restart
+#RUN service php8.1-fpm restart
 
 # Set working directory to /var/www.
 WORKDIR /var/www
