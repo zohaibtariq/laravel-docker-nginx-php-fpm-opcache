@@ -65,7 +65,7 @@ Step 5:
 
 To run all containers for local development, run `make fresh`. Otherwise `make fresh-prod` for prod builds.
 
-Default PHP port is configured to 98000. Connect via `http:/localhost:9000` or `http://127.0.0.1:9000`
+Default PHP port is configured to 80. Connect via `http:/localhost` or `http://127.0.0.1`
 
 Default DB port is 3306.
 

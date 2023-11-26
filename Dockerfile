@@ -1,5 +1,3 @@
-# Dockerfile
-
 # Used for prod build.
 FROM php:8.1-fpm as php
 
@@ -11,25 +9,32 @@ ENV PHP_OPCACHE_REVALIDATE_FREQ=0
 
 # Install dependencies.
 RUN apt-get update && apt-get install -y unzip libpq-dev libcurl4-gnutls-dev nginx libonig-dev
+    # libssl-dev libcurl4-openssl-dev
 
 # Install PHP extensions.
 RUN docker-php-ext-install mysqli pdo pdo_mysql bcmath curl opcache mbstring
 
 # Install PHP MongoDB extension
-RUN pecl install mongodb
-#RUN docker-php-ext-install mongodb
-RUN docker-php-ext-enable mongodb
+RUN pecl install mongodb && docker-php-ext-enable mongodb
 
 # Install PHP Redis extension
-RUN pecl install redis
+RUN pecl install redis && docker-php-ext-enable redis
+
+# Install PHP MongoDB extension
+#RUN pecl install mongodb
+#RUN docker-php-ext-install mongodb
+#RUN docker-php-ext-enable mongodb
+
+# Install PHP Redis extension
+#RUN pecl install redis
 #RUN docker-php-ext-install redis
-RUN docker-php-ext-enable redis
+#RUN docker-php-ext-enable redis
 
 # mongodb redis php-redis git nano
 #RUN docker-php-ext-enable mongodb redis
 
-COPY ./docker/php/conf.d/mongodb.ini /usr/local/etc/php/conf.d/mongodb.ini
-COPY ./docker/php/conf.d/redis.ini /usr/local/etc/php/conf.d/redis.ini
+#COPY ./docker/php/conf.d/mongodb.ini /usr/local/etc/php/conf.d/mongodb.ini
+#COPY ./docker/php/conf.d/redis.ini /usr/local/etc/php/conf.d/redis.ini
 
 # Copy composer executable.
 COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer
@@ -49,6 +54,7 @@ COPY --chown=www-data:www-data . .
 
 # Create laravel caching folders.
 RUN mkdir -p /var/www/storage/framework /var/www/storage/framework/{cache,testing,sessions,views}
+RUN mkdir -p /var/www/storage /var/www/storage/logs /var/www/bootstrap
 
 # Fix files ownership.
 RUN chown -R www-data:www-data /var/www/storage

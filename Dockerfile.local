@@ -9,9 +9,32 @@ ENV PHP_OPCACHE_REVALIDATE_FREQ=0
 
 # Install dependencies.
 RUN apt-get update && apt-get install -y unzip libpq-dev libcurl4-gnutls-dev nginx libonig-dev
+    # libssl-dev libcurl4-openssl-dev
 
 # Install PHP extensions.
 RUN docker-php-ext-install mysqli pdo pdo_mysql bcmath curl opcache mbstring
+
+# Install PHP MongoDB extension
+RUN pecl install mongodb && docker-php-ext-enable mongodb
+
+# Install PHP Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
+# Install PHP MongoDB extension
+#RUN pecl install mongodb
+#RUN docker-php-ext-install mongodb
+#RUN docker-php-ext-enable mongodb
+
+# Install PHP Redis extension
+#RUN pecl install redis
+#RUN docker-php-ext-install redis
+#RUN docker-php-ext-enable redis
+
+# mongodb redis php-redis git nano
+#RUN docker-php-ext-enable mongodb redis
+
+#COPY ./docker/php/conf.d/mongodb.ini /usr/local/etc/php/conf.d/mongodb.ini
+#COPY ./docker/php/conf.d/redis.ini /usr/local/etc/php/conf.d/redis.ini
 
 # Copy composer executable.
 COPY --from=composer:2.3.5 /usr/bin/composer /usr/bin/composer

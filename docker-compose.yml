@@ -1,7 +1,7 @@
 version: "3.8"
 services:
-    api:
-        container_name: api
+    laravel:
+        container_name: laravel
         build:
             context: .
             target: php
@@ -13,12 +13,14 @@ services:
         volumes:
             - ./:/var/www
         ports:
-            - 9000:8080
+            - 80:80
         depends_on:
-            - database
+            - mysql
+            - mongodb
             - redis
-    database:
-        container_name: database
+        restart: unless-stopped
+    mysql:
+        container_name: mysql
         image: mysql:8.0
         ports:
             -   3306:3306
@@ -28,12 +30,26 @@ services:
             - MYSQL_PASSWORD=secret
             - MYSQL_ROOT_PASSWORD=secret
         volumes:
-            - db-data:/var/lib/mysql
+            - mysql_data:/var/lib/mysql
+        restart: unless-stopped
+    mongodb:
+        image: mongo:latest
+        container_name: mongodb
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongodb_data:/data/db
+        restart: unless-stopped
     redis:
         container_name:  redis
         image: redis:alpine
         command: redis-server --appendonly yes --requirepass  "secret"
         ports:
-            - 6380:6379
+            - 6379:6379
+        volumes:
+            - redis_data:/data
+        restart: unless-stopped
 volumes:
-    db-data: ~
+    mysql_data:
+    mongodb_data:
+    redis_data:
